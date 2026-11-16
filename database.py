@@ -1,52 +1,70 @@
-"""Database connection and query helper functions."""
+# database.py
 import os
-
 import mysql.connector
 from dotenv import load_dotenv
 
-# Read DB_HOST, DB_USER, DB_PASSWORD, DB_NAME from the .env file
+# load environment variables
 load_dotenv()
 
-
 def get_db():
-    """Open a new connection to the MySQL database."""
+    # open a connection to the job_tracker database
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
         user=os.getenv("DB_USER", "root"),
         password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "job_tracker"),
+        database=os.getenv("DB_NAME", "job_tracker")
     )
 
-
 def fetch_all(sql, params=None):
-    """Run a SELECT and return every row as a list of dicts."""
+    # run a select query and return all rows as a list of dictionaries
     conn = get_db()
-    try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(sql, params or ())
-        return cursor.fetchall()
-    finally:
-        conn.close()
-
+    cursor = conn.cursor(dictionary=True)
+    
+    if params:
+        cursor.execute(sql, params)
+    else:
+        cursor.execute(sql)
+        
+    results = cursor.fetchall()
+    
+    # make sure to close the connections
+    cursor.close()
+    conn.close()
+    
+    return results
 
 def fetch_one(sql, params=None):
-    """Run a SELECT and return the first row as a dict (or None)."""
+    # run a select query but only get the first row back
     conn = get_db()
-    try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(sql, params or ())
-        return cursor.fetchone()
-    finally:
-        conn.close()
-
+    cursor = conn.cursor(dictionary=True)
+    
+    if params:
+        cursor.execute(sql, params)
+    else:
+        cursor.execute(sql)
+        
+    result = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+    
+    return result
 
 def execute(sql, params=None):
-    """Run an INSERT/UPDATE/DELETE, commit it, and return the new row id."""
+    # run insert, update, or delete queries and save the changes
     conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute(sql, params or ())
-        conn.commit()
-        return cursor.lastrowid
-    finally:
-        conn.close()
+    cursor = conn.cursor()
+    
+    if params:
+        cursor.execute(sql, params)
+    else:
+        cursor.execute(sql)
+        
+    # have to commit to actually save the changes
+    conn.commit()
+    row_id = cursor.lastrowid
+    
+    cursor.close()
+    conn.close()
+    
+    return row_id
