@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% set active_page = "contacts" %}
+{% block title %}{{ action }} Contact{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ action }} Contact</h1>
+    <a href="{{ url_for('contacts') }}" class="btn btn-ghost"><i data-lucide="arrow-left"></i>Back</a>
+</div>
+
+{% if not companies %}
+<div class="alert alert-warning">
+    <i data-lucide="info"></i>
+    <span>You need at least one company before adding a contact. <a href="{{ url_for('add_company') }}">Add a company</a>.</span>
+</div>
+{% endif %}
+
+<div class="panel">
+    <form method="post">
+        <h2 class="form-section"><i data-lucide="user"></i>Contact details</h2>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="contact_name">Name *</label>
+                <input type="text" class="form-control" id="contact_name" name="contact_name"
+                       maxlength="100" required value="{{ contact.contact_name or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="company_id">Company *</label>
+                <select class="form-select" id="company_id" name="company_id" required>
+                    <option value="">Choose a company...</option>
+                    {% for c in companies %}
+                    <option value="{{ c.company_id }}"
+                        {% if contact.company_id | string == c.company_id | string %}selected{% endif %}>{{ c.company_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title"
+                       maxlength="100" placeholder="e.g. Recruiter" value="{{ contact.title or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       maxlength="100" value="{{ contact.email or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="phone">Phone</label>
+                <input type="tel" class="form-control" id="phone" name="phone"
+                       maxlength="20" placeholder="305-555-0101" value="{{ contact.phone or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="linkedin_url">LinkedIn URL</label>
+                <input type="url" class="form-control" id="linkedin_url" name="linkedin_url"
+                       maxlength="200" placeholder="https://linkedin.com/in/..." value="{{ contact.linkedin_url or '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="notes">Notes</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3">{{ contact.notes or '' }}</textarea>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i data-lucide="check"></i>Save Contact</button>
+            <a href="{{ url_for('contacts') }}" class="btn btn-link-muted">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

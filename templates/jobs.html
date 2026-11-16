@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set active_page = "jobs" %}
+{% block title %}Jobs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Jobs</h1>
+    <a href="{{ url_for('add_job') }}" class="btn btn-primary"><i data-lucide="plus"></i>Add Job</a>
+</div>
+
+<div class="panel panel-flush">
+    {% if jobs %}
+    <div class="scroll-x">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Type</th>
+                    <th>Salary</th>
+                    <th>Posted</th>
+                    <th>Required Skills</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for j in jobs %}
+                <tr>
+                    <td><a href="{{ url_for('job_detail', job_id=j.job_id) }}" class="fw-semibold">{{ j.job_title }}</a></td>
+                    <td>{{ j.company_name }}</td>
+                    <td class="text-muted">{{ j.job_type or '—' }}</td>
+                    <td class="text-nowrap">
+                        {% if j.salary_min and j.salary_max %}
+                            ${{ "{:,}".format(j.salary_min) }} – ${{ "{:,}".format(j.salary_max) }}
+                        {% elif j.salary_min %}
+                            ${{ "{:,}".format(j.salary_min) }}+
+                        {% elif j.salary_max %}
+                            up to ${{ "{:,}".format(j.salary_max) }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="text-muted text-nowrap">{{ j.date_posted or '—' }}</td>
+                    <td><div class="chips">{% for s in j.skills %}<span class="chip skill">{{ s }}</span>{% endfor %}</div></td>
+                    <td class="actions">
+                        <a href="{{ url_for('edit_job', job_id=j.job_id) }}" class="btn btn-icon" title="Edit" aria-label="Edit {{ j.job_title }}">
+                            <i data-lucide="pencil"></i>
+                        </a>
+                        <form method="post" action="{{ url_for('delete_job', job_id=j.job_id) }}"
+                              data-confirm="Delete '{{ j.job_title }}' at {{ j.company_name }}? Any applications for this job will also be deleted.">
+                            <button type="submit" class="btn btn-icon danger" title="Delete" aria-label="Delete {{ j.job_title }}">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i data-lucide="briefcase"></i>
+        No jobs yet.
+        <a href="{{ url_for('add_job') }}">Add your first one</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% set active_page = "dashboard" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <a href="{{ url_for('add_application') }}" class="btn btn-primary">
+        <i data-lucide="plus"></i>New Application
+    </a>
+</div>
+
+<!-- [CONCENTRIC] stat tiles: outer bezel + inner face -->
+<div class="row g-3 mb-4">
+    {% for key, label, endpoint, icon in [
+        ('companies', 'Companies', 'companies', 'building-2'),
+        ('jobs', 'Jobs', 'jobs', 'briefcase'),
+        ('applications', 'Applications', 'applications', 'send'),
+        ('contacts', 'Contacts', 'contacts', 'users')
+    ] %}
+    <div class="col-6 col-lg-3">
+        <a href="{{ url_for(endpoint) }}" class="bezel">
+            <div class="bezel-face">
+                <div class="stat-top">
+                    <span>{{ label }}</span>
+                    <i data-lucide="{{ icon }}"></i>
+                </div>
+                <div class="stat-value">{{ counts[key] }}</div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row g-3">
+    <!-- Status breakdown -->
+    <div class="col-lg-5">
+        <div class="panel h-100">
+            <h2 class="section-title"><i data-lucide="chart-bar"></i>Applications by Status</h2>
+            {% set total = counts['applications'] %}
+            {% set hues = {'Applied': 264, 'Screening': 75, 'Interview': 305, 'Offer': 150, 'Rejected': 25, 'Withdrawn': 262} %}
+            {% set chroma = {'Withdrawn': 0.02} %}
+            {% for status, count in by_status.items() %}
+            <div class="status-row">
+                <a href="{{ url_for('applications', status=status) }}" class="chip status-{{ status }}">{{ status }}</a>
+                <div class="bar">
+                    <span style="--h: {{ hues[status] }}; --c: {{ chroma.get(status, 0.15) }}; width: {{ (count / total * 100) if total else 0 }}%"></span>
+                </div>
+                <span class="count">{{ count }}</span>
+            </div>
+            {% endfor %}
+            <div class="metric">
+                <strong>{{ response_rate }}%</strong>
+                <span class="text-muted small">response rate &middot; applications that moved past "Applied"</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent applications -->
+    <div class="col-lg-7">
+        <div class="panel panel-flush h-100">
+            <div style="padding: var(--p-panel) var(--p-panel) 0;">
+                <h2 class="section-title"><i data-lucide="clock"></i>Recent Applications</h2>
+            </div>
+            {% if recent %}
+            <div class="scroll-x">
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>Date</th><th>Job</th><th>Company</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for app in recent %}
+                        <tr>
+                            <td class="text-muted">{{ app.application_date }}</td>
+                            <td>{{ app.job_title }}</td>
+                            <td>{{ app.company_name }}</td>
+                            <td><span class="chip status-{{ app.status }}">{{ app.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state"><i data-lucide="inbox"></i>No applications yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

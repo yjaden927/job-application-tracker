@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% set active_page = "companies" %}
+{% block title %}{{ company.company_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        <span class="avatar avatar-lg" style="--h: {{ (company.company_id * 67) % 360 }}">{{ company.company_name[:2] | upper }}</span>
+        {{ company.company_name }}
+    </h1>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('edit_company', company_id=company.company_id) }}" class="btn btn-ghost"><i data-lucide="pencil"></i>Edit</a>
+        <a href="{{ url_for('companies') }}" class="btn btn-ghost"><i data-lucide="arrow-left"></i>Back</a>
+    </div>
+</div>
+
+<div class="panel mb-3">
+    <dl class="detail-grid">
+        <dt><i data-lucide="tag"></i>Industry</dt>
+        <dd>{{ company.industry or '—' }}</dd>
+        <dt><i data-lucide="map-pin"></i>Location</dt>
+        <dd>{{ [company.city, company.state] | select | join(', ') or '—' }}</dd>
+        <dt><i data-lucide="globe"></i>Website</dt>
+        <dd>
+            {% if company.website %}<a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website }}</a>{% else %}—{% endif %}
+        </dd>
+        <dt><i data-lucide="file-text"></i>Notes</dt>
+        <dd>{{ company.notes or '—' }}</dd>
+    </dl>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="panel h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="section-title mb-0"><i data-lucide="briefcase"></i>Jobs <span class="count">{{ jobs | length }}</span></h2>
+                <a href="{{ url_for('add_job', company_id=company.company_id) }}" class="btn btn-ghost btn-sm"><i data-lucide="plus"></i>Add Job</a>
+            </div>
+            {% for job in jobs %}
+            <div class="list-row">
+                <div>
+                    <a href="{{ url_for('job_detail', job_id=job.job_id) }}" class="fw-semibold">{{ job.job_title }}</a>
+                    <div class="small text-muted">{{ job.job_type or '—' }} &middot; posted {{ job.date_posted or '—' }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state"><i data-lucide="briefcase"></i>No jobs for this company yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="section-title mb-0"><i data-lucide="users"></i>Contacts <span class="count">{{ contacts | length }}</span></h2>
+                <a href="{{ url_for('add_contact', company_id=company.company_id) }}" class="btn btn-ghost btn-sm"><i data-lucide="plus"></i>Add Contact</a>
+            </div>
+            {% for contact in contacts %}
+            <div class="list-row">
+                <div>
+                    <div class="fw-semibold">{{ contact.contact_name }}</div>
+                    <div class="small text-muted">{{ contact.title or '—' }}</div>
+                </div>
+                {% if contact.email %}
+                <a href="mailto:{{ contact.email }}" class="btn btn-icon" title="Email {{ contact.contact_name }}"><i data-lucide="mail"></i></a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="empty-state"><i data-lucide="users"></i>No contacts for this company yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

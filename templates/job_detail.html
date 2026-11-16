@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% set active_page = "jobs" %}
+{% block title %}{{ job.job_title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ job.job_title }} <span class="sub">at {{ job.company_name }}</span></h1>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('edit_job', job_id=job.job_id) }}" class="btn btn-ghost"><i data-lucide="pencil"></i>Edit</a>
+        <a href="{{ url_for('jobs') }}" class="btn btn-ghost"><i data-lucide="arrow-left"></i>Back</a>
+    </div>
+</div>
+
+<div class="panel mb-3">
+    <dl class="detail-grid">
+        <dt><i data-lucide="building-2"></i>Company</dt>
+        <dd><a href="{{ url_for('company_detail', company_id=job.company_id) }}">{{ job.company_name }}</a></dd>
+        <dt><i data-lucide="clock"></i>Type</dt>
+        <dd>{{ job.job_type or '—' }}</dd>
+        <dt><i data-lucide="banknote"></i>Salary</dt>
+        <dd>
+            {% if job.salary_min or job.salary_max %}
+                ${{ "{:,}".format(job.salary_min or 0) }} – ${{ "{:,}".format(job.salary_max or 0) }}
+            {% else %}—{% endif %}
+        </dd>
+        <dt><i data-lucide="calendar"></i>Date posted</dt>
+        <dd>{{ job.date_posted or '—' }}</dd>
+        <dt><i data-lucide="link"></i>Posting</dt>
+        <dd>
+            {% if job.job_url %}<a href="{{ job.job_url }}" target="_blank" rel="noopener">{{ job.job_url }}</a>{% else %}—{% endif %}
+        </dd>
+        <dt><i data-lucide="list-checks"></i>Required skills</dt>
+        <dd><div class="chips">{% for s in job.skills %}<span class="chip skill">{{ s }}</span>{% endfor %}</div></dd>
+    </dl>
+</div>
+
+<div class="panel">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="section-title mb-0"><i data-lucide="send"></i>Applications <span class="count">{{ applications | length }}</span></h2>
+        <a href="{{ url_for('add_application', job_id=job.job_id) }}" class="btn btn-ghost btn-sm"><i data-lucide="plus"></i>Log Application</a>
+    </div>
+    {% for a in applications %}
+    <div class="list-row">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="text-muted small">{{ a.application_date }}</span>
+            <span class="chip status-{{ a.status }}">{{ a.status }}</span>
+            <span class="small text-muted">resume {{ a.resume_version or '—' }}</span>
+        </div>
+        <a href="{{ url_for('edit_application', app_id=a.application_id) }}" class="btn btn-icon" title="Edit application">
+            <i data-lucide="pencil"></i>
+        </a>
+    </div>
+    {% else %}
+    <div class="empty-state"><i data-lucide="send"></i>No applications for this job yet.</div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% set active_page = "jobs" %}
+{% block title %}{{ action }} Job{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ action }} Job</h1>
+    <a href="{{ url_for('jobs') }}" class="btn btn-ghost"><i data-lucide="arrow-left"></i>Back</a>
+</div>
+
+{% if not companies %}
+<div class="alert alert-warning">
+    <i data-lucide="info"></i>
+    <span>You need at least one company before adding a job. <a href="{{ url_for('add_company') }}">Add a company</a>.</span>
+</div>
+{% endif %}
+
+<div class="panel">
+    <form method="post">
+        <h2 class="form-section"><i data-lucide="briefcase"></i>Job details</h2>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="company_id">Company *</label>
+                <select class="form-select" id="company_id" name="company_id" required>
+                    <option value="">Choose a company...</option>
+                    {% for c in companies %}
+                    <option value="{{ c.company_id }}"
+                        {% if job.company_id | string == c.company_id | string %}selected{% endif %}>{{ c.company_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="job_title">Job title *</label>
+                <input type="text" class="form-control" id="job_title" name="job_title"
+                       maxlength="100" required value="{{ job.job_title or '' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="job_type">Job type</label>
+                <select class="form-select" id="job_type" name="job_type">
+                    <option value="">—</option>
+                    {% for t in job_types %}
+                    <option value="{{ t }}" {% if job.job_type == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="salary_min">Salary min ($/year)</label>
+                <input type="number" class="form-control" id="salary_min" name="salary_min"
+                       min="0" step="1" value="{{ job.salary_min if job.salary_min is not none else '' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="salary_max">Salary max ($/year)</label>
+                <input type="number" class="form-control" id="salary_max" name="salary_max"
+                       min="0" step="1" value="{{ job.salary_max if job.salary_max is not none else '' }}">
+            </div>
+            <div class="col-md-8">
+                <label class="form-label" for="job_url">Job posting URL</label>
+                <input type="url" class="form-control" id="job_url" name="job_url"
+                       maxlength="300" placeholder="https://..." value="{{ job.job_url or '' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="date_posted">Date posted</label>
+                <input type="date" class="form-control" id="date_posted" name="date_posted"
+                       value="{{ job.date_posted or '' }}">
+            </div>
+        </div>
+
+        <h2 class="form-section mt-4"><i data-lucide="list-checks"></i>Requirements</h2>
+        <label class="form-label" for="requirements">Required skills *</label>
+        <input type="text" class="form-control" id="requirements" name="requirements"
+               required placeholder="Python, SQL, Flask" value="{{ job.requirements or '' }}">
+        <div class="form-text">Separate skills with commas. Saved as a JSON array and used by Job Match.</div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i data-lucide="check"></i>Save Job</button>
+            <a href="{{ url_for('jobs') }}" class="btn btn-link-muted">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

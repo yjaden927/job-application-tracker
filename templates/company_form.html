@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% set active_page = "companies" %}
+{% block title %}{{ action }} Company{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ action }} Company</h1>
+    <a href="{{ url_for('companies') }}" class="btn btn-ghost"><i data-lucide="arrow-left"></i>Back</a>
+</div>
+
+<div class="panel">
+    <form method="post">
+        <h2 class="form-section"><i data-lucide="building-2"></i>Company details</h2>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="company_name">Company name *</label>
+                <input type="text" class="form-control" id="company_name" name="company_name"
+                       maxlength="100" required value="{{ company.company_name or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="industry">Industry</label>
+                <input type="text" class="form-control" id="industry" name="industry"
+                       maxlength="50" value="{{ company.industry or '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="website">Website</label>
+                <input type="url" class="form-control" id="website" name="website"
+                       maxlength="200" placeholder="https://..." value="{{ company.website or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="city">City</label>
+                <input type="text" class="form-control" id="city" name="city"
+                       maxlength="50" value="{{ company.city or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="state">State</label>
+                <input type="text" class="form-control" id="state" name="state"
+                       maxlength="50" value="{{ company.state or '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="notes">Notes</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3">{{ company.notes or '' }}</textarea>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i data-lucide="check"></i>Save Company</button>
+            <a href="{{ url_for('companies') }}" class="btn btn-link-muted">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

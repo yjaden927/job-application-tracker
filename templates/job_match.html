@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set active_page = "job_match" %}
+{% block title %}Job Match{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Job Match</h1>
+</div>
+
+<div class="panel mb-4">
+    <form method="post">
+        <label class="form-label" for="skills">Your skills</label>
+        <!-- [CONCENTRIC] the button's corners follow the field's corners -->
+        <div class="search-field">
+            <i data-lucide="search"></i>
+            <input type="text" id="skills" name="skills" placeholder="Python, SQL, Flask"
+                   value="{{ skills_text }}" required autocomplete="off">
+            <button type="submit" class="btn btn-primary"><i data-lucide="target"></i>Find Matches</button>
+        </div>
+        <div class="form-text mt-2">
+            Separate skills with commas. Match % = how many of a job's required skills you have.
+            Upper/lower case doesn't matter.
+        </div>
+    </form>
+</div>
+
+{% if results is not none %}
+    <h2 class="section-title"><i data-lucide="list-ordered"></i>Matching Jobs <span class="count">{{ results | length }}</span></h2>
+    {% for r in results %}
+    {% set level = 'high' if r.percent >= 75 else ('mid' if r.percent >= 50 else 'low') %}
+    <div class="panel match-card">
+        <div class="match-rank">{{ "%02d" | format(loop.index) }}</div>
+        <div>
+            <div>
+                <a href="{{ url_for('job_detail', job_id=r.job_id) }}" class="match-title">{{ r.job_title }}</a>
+                <span class="text-muted">at {{ r.company_name }}</span>
+            </div>
+            <div class="match-meta">
+                <span>{{ r.matched | length }}/{{ r.total }} skills</span>
+                {% for s in r.matched %}<span class="chip skill matched"><i data-lucide="check"></i>{{ s }}</span>{% endfor %}
+            </div>
+            {% if r.missing %}
+            <div class="match-meta">
+                <span>Missing</span>
+                {% for s in r.missing %}<span class="chip skill missing"><i data-lucide="x"></i>{{ s }}</span>{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="match-score match-{{ level }}">
+            {{ r.percent }}%
+            <small>match</small>
+        </div>
+    </div>
+    {% else %}
+    <div class="panel empty-state"><i data-lucide="search-x"></i>No jobs match any of those skills.</div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
